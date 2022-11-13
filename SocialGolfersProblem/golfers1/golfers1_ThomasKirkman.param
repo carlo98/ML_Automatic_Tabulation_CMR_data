@@ -1,0 +1,8 @@
+language ESSENCE' 1.0
+$ Thomas Kirkman's Schoolgirl Problem
+$ from: http://cs.brown.edu/~sello/golf.html
+
+letting w be 7
+letting g be 5
+letting s be 3
+

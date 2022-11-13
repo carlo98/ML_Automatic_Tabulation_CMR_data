@@ -1,0 +1,18 @@
+language ESSENCE' 1.0
+letting avatarInitRow be 8
+letting avatarInitCol be 5
+letting numBlocks be 1
+letting blocksInitRow be [5]
+letting blocksInitCol be [5]
+letting blocksGoalRow be [5]
+letting blocksGoalCol be [6]
+letting steps be 5
+letting gridInit be [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 1, 2, 2, 0, 0, 0],
+                     [0, 0, 0, 1, 1, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 1, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 2, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0]]

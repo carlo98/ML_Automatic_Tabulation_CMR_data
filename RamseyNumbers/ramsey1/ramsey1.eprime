@@ -1,0 +1,196 @@
+language ESSENCE' 1.0
+
+given k: int
+given l: int
+given num_vertices: int
+where k <= l
+letting num_edges be num_vertices * (num_vertices - 1)
+find graph_FunctionNDPartial_Flags: matrix indexed by [int(1..num_vertices), int(1..num_vertices)] of bool
+find graph_FunctionNDPartial_Values: matrix indexed by [int(1..num_vertices), int(1..num_vertices)] of int(1..2)
+branching on [graph_FunctionNDPartial_Flags, graph_FunctionNDPartial_Values]
+such that
+    and([i < j ->
+         graph_FunctionNDPartial_Flags[i, j] /\
+         and([graph_FunctionNDPartial_Values[i, j] = graph_FunctionNDPartial_Values[j, i],
+              graph_FunctionNDPartial_Flags[i, j], graph_FunctionNDPartial_Flags[j, i];
+                  int(1..3)])
+             | i : int(1..num_vertices), j : int(1..num_vertices)]),
+    and([!graph_FunctionNDPartial_Flags[i, i] | i : int(1..num_vertices)]),
+    and([!and([graph_FunctionNDPartial_Values[subgraph_vertices_Explicit[q6], subgraph_vertices_Explicit[q7]] = 1 /\
+               graph_FunctionNDPartial_Flags[subgraph_vertices_Explicit[q6], subgraph_vertices_Explicit[q7]]
+                   | q6 : int(1..k), q7 : int(1..k), q7 > q6])
+             | subgraph_vertices_Explicit : matrix indexed by [int(1..k)] of int(1..num_vertices),
+               and([subgraph_vertices_Explicit[q4] < subgraph_vertices_Explicit[q4 + 1] | q4 : int(1..k - 1)])]),
+    and([!and([graph_FunctionNDPartial_Values[subgraph_vertices_Explicit[q10], subgraph_vertices_Explicit[q11]] = 2 /\
+               graph_FunctionNDPartial_Flags[subgraph_vertices_Explicit[q10], subgraph_vertices_Explicit[q11]]
+                   | q10 : int(1..l), q11 : int(1..l), q11 > q10])
+             | subgraph_vertices_Explicit : matrix indexed by [int(1..l)] of int(1..num_vertices),
+               and([subgraph_vertices_Explicit[q8] < subgraph_vertices_Explicit[q8 + 1] | q8 : int(1..l - 1)])]),
+    and([graph_FunctionNDPartial_Flags[q1_1, q1_2] = false -> graph_FunctionNDPartial_Values[q1_1, q1_2] = 1
+             | q1_1 : int(1..num_vertices), q1_2 : int(1..num_vertices)]),
+    num_edges =
+    sum([toInt(graph_FunctionNDPartial_Flags[q2_1, q2_2]) | q2_1 : int(1..num_vertices), q2_2 : int(1..num_vertices)])
+
+$ Conjure's
+$ {"finds": [{"Name": "graph"}], "givens": [{"Name": "k"}, {"Name": "l"}, {"Name": "num_vertices"}], "enumGivens": [],
+$  "enumLettings": [{"LettingDomainDefnEnum": [{"Name": "Colour"}, [{"Name": "red"}, {"Name": "blue"}]]}],
+$  "lettings":
+$      [[{"Name": "num_edges"},
+$        {"Op":
+$             {"MkOpProduct":
+$                  {"AbstractLiteral":
+$                       {"AbsLitMatrix":
+$                            [{"DomainInt":
+$                                  [{"TagInt": []},
+$                                   [{"RangeBounded":
+$                                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                          {"Constant": {"ConstantInt": [{"TagInt": []}, 2]}}]}]]},
+$                             [{"Reference":
+$                                   [{"Name": "num_vertices"},
+$                                    {"DeclNoRepr":
+$                                         ["Given", {"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]},
+$                                          {"NoRegion": []}]}]},
+$                              {"Op":
+$                                   {"MkOpMinus":
+$                                        [{"Reference":
+$                                              [{"Name": "num_vertices"},
+$                                               {"DeclNoRepr":
+$                                                    ["Given", {"Name": "num_vertices"},
+$                                                     {"DomainInt": [{"TagInt": []}, []]}, {"NoRegion": []}]}]},
+$                                         {"Constant": {"ConstantInt": [{"TagInt": []}, 1]}}]}}]]}}}}],
+$       [{"Name": "Colour"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagEnum": "Colour"},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 1]}},
+$                          {"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 2]}}]}]]}}],
+$       [{"Name": "Vertex"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagInt": []},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                          {"Reference":
+$                               [{"Name": "num_vertices"},
+$                                {"DeclNoRepr":
+$                                     ["Given", {"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]},
+$                                      {"NoRegion": []}]}]}]}]]}}]],
+$  "unnameds": [], "strategyQ": {"PickFirst": []}, "strategyA": {"PickAll": []},
+$  "trailCompact":
+$      [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 2], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+$  "trailVerbose": [], "trailRewrites": [], "nameGenState": [["q", 14]], "nbExtraGivens": 0,
+$  "representations":
+$      [[{"Name": "k"}, {"DomainInt": [{"TagInt": []}, []]}], [{"Name": "l"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "graph"},
+$        {"DomainFunction":
+$             [{"Function_NDPartial": []},
+$              [{"SizeAttr_Size":
+$                    {"Reference":
+$                         [{"Name": "num_edges"},
+$                          {"Alias":
+$                               {"Op":
+$                                    {"MkOpProduct":
+$                                         {"AbstractLiteral":
+$                                              {"AbsLitMatrix":
+$                                                   [{"DomainInt":
+$                                                         [{"TagInt": []},
+$                                                          [{"RangeBounded":
+$                                                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 2]}}]}]]},
+$                                                    [{"Reference":
+$                                                          [{"Name": "num_vertices"},
+$                                                           {"DeclHasRepr":
+$                                                                ["Given", {"Name": "num_vertices"},
+$                                                                 {"DomainInt": [{"TagInt": []}, []]}]}]},
+$                                                     {"Op":
+$                                                          {"MkOpMinus":
+$                                                               [{"Reference":
+$                                                                     [{"Name": "num_vertices"},
+$                                                                      {"DeclHasRepr":
+$                                                                           ["Given", {"Name": "num_vertices"},
+$                                                                            {"DomainInt": [{"TagInt": []}, []]}]}]},
+$                                                                {"Constant":
+$                                                                     {"ConstantInt": [{"TagInt": []}, 1]}}]}}]]}}}}}]}},
+$               "PartialityAttr_Partial", "JectivityAttr_None"],
+$              {"DomainTuple":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference":
+$                                      [{"Name": "num_vertices"},
+$                                       {"DeclHasRepr":
+$                                            ["Given", {"Name": "num_vertices"},
+$                                             {"DomainInt": [{"TagInt": []}, []]}]}]}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference":
+$                                      [{"Name": "num_vertices"},
+$                                       {"DeclHasRepr":
+$                                            ["Given", {"Name": "num_vertices"},
+$                                             {"DomainInt": [{"TagInt": []}, []]}]}]}]}]]}]},
+$              {"DomainInt":
+$                   [{"TagEnum": "Colour"},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 2]}}]}]]}]}]],
+$  "representationsTree":
+$      [[{"Name": "graph"},
+$        [{"rootLabel": {"Function_NDPartial": []},
+$          "subForest":
+$              [{"rootLabel": null,
+$                "subForest": [{"rootLabel": null, "subForest": []}, {"rootLabel": null, "subForest": []}]},
+$               {"rootLabel": null, "subForest": []}]}]],
+$       [{"Name": "k"}, [{"rootLabel": null, "subForest": []}]], [{"Name": "l"}, [{"rootLabel": null, "subForest": []}]],
+$       [{"Name": "num_vertices"}, [{"rootLabel": null, "subForest": []}]]],
+$  "originalDomains":
+$      [[{"Name": "k"}, {"DomainInt": [{"TagInt": []}, []]}], [{"Name": "l"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "graph"},
+$        {"DomainFunction":
+$             [[],
+$              [{"SizeAttr_Size": {"Reference": [{"Name": "num_edges"}, null]}}, "PartialityAttr_Partial",
+$               "JectivityAttr_None"],
+$              {"DomainTuple":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference": [{"Name": "num_vertices"}, null]}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference": [{"Name": "num_vertices"}, null]}]}]]}]},
+$              {"DomainEnum": [{"Name": "Colour"}, null, null]}]}]],
+$  "trailGeneralised":
+$      [[5265771694144282980, -411847565909813311], [6447857403575680772, -2345393877025977397],
+$       [-4035602281828812526, -7051750863208701701], [3363165003162934047, 216480193083508257],
+$       [-1214334931506322385, -957337334700885435], [1153450562873655095, -2376277852465253110],
+$       [-7399503894015676191, 4282456451899883960], [8528579319200916001, -6545349787118965915],
+$       [8697974144239183584, 8936651278431034213], [2539614619852610440, -5242975075877566746],
+$       [-7262307804519768497, -8457251484009761540], [7253107862016978574, -7633099382097688083],
+$       [6993544783948194609, -8457251484009761540], [-8313049578837804523, -7633099382097688083],
+$       [4666665632300049709, 4727779008013388744], [940276384264740326, 388379617919902636],
+$       [-5246326497063413634, -1535742814327368872], [9042469430375634481, 7242999552543346141],
+$       [-1392901328359235051, -8660023617983400158], [-8296458336438442804, -1381385624570355954],
+$       [-4608939657542490820, 6594415349925658907], [1820197420007783735, 8552664734819664649],
+$       [4836959262463377396, 5767586449515209274], [-3487864406871168471, 8411854160213147146],
+$       [-6522675021754045249, 4793514656521396233], [-3737665841237696668, 6983069969305839858],
+$       [2054267662685103364, 3750948769767305862], [-1484282811278365977, -1568813919583530563],
+$       [-883596491452766932, -6901730422477168292], [-4883543734964031337, -8475744482091942654],
+$       [8358162665774149781, 4635973863877036671], [1379692108031213489, -3363209537729079319],
+$       [-975234689972538418, -6553436201250878966], [-594030431317230299, -3899930431585384630],
+$       [7065474496797213675, -979677364431902853], [2591475288575033921, 1479643116685122766],
+$       [-4360944515097078043, 8578090792837395942], [3259158330350677048, 7108717848274999229],
+$       [1468164530080767261, 4381788357017623346], [-2808969757729715505, -1528712052676259634],
+$       [-3790048481226967627, -4492824076890407473], [-2547465957577885769, -4691369600970124657],
+$       [-5892739874391874149, 6003117253387241495]]}

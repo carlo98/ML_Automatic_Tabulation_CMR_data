@@ -1,0 +1,111 @@
+$ Sokoban
+$
+$ Sokoban (Japanese for "warehouse keeper") is a transport puzzle. The
+$ game was invented by Hiroyuki Imabayashi, and was published by
+$ Thinking Rabbit, a computer games company in the town of Takarazuka,
+$ Japan. The game is composed of a two dimensional layout of a
+$ warehouse laid out on a rectangular grid. An empty cell indicates a 
+$ part of the warehouse� floor where the porter can move freely. The 
+$ walls constitute the boundaries of the warehouse. Some of the floor 
+$ cells contain crates. Each crate is a 1x1 square occupying a single 
+$ cell. These crates are to be moved into designated target positions
+$ by a porter. The number of target positions and the number of crates
+$ should be the same. The crates cannot be pulled and can be pushed 
+$ only one at a time. Thus at a time, a cell may be empty, occupied by 
+$ the porter, a packet, a target position or a part of the warehouse
+$ wall. 
+$
+$ by Geetha Ramachandran
+$ geetha.ramachandran@gmail.com
+$
+$ modified by Andrea Rendl
+
+language ESSENCE' 1.0
+
+$ Variables to be determined: 
+$ sokPosn        -  Position of the porter at each time step
+$ move           - Direction of movement made by the porter at each time step
+$ crateGoalPosns - Position of each crate at each time step
+
+
+given w : int $ the width of the board
+given n : int $ the amount of fields
+given stps: int
+
+given pInit: int
+given upper_bound_changes : int
+$given upper_bound_steps : int
+
+given noWallsInit : int
+$given noInvalidMoves : int
+given noGoals : int
+given noCrates : int
+
+letting WALLINDICES be domain int(0..n-1)
+letting WALLINDICESINIT be domain int(1..noWallsInit)
+letting GOALINDICES be domain int(1..noGoals)
+letting CRATEINDICES be domain int(1..noCrates)
+$letting INVALIDMOVEINDICES be domain int(0..noInvalidMoves-1)
+letting POSITIONS be domain int(0..n-1)
+
+given wallsInit : matrix indexed by [WALLINDICESINIT] of POSITIONS
+$given invalidMoves : matrix indexed by [INVALIDMOVEINDICES] of MOVES
+given goals : matrix indexed by [GOALINDICES] of int(0..n-1)
+given crates : matrix indexed by [CRATEINDICES] of int(0..n-1)
+
+
+
+letting MOVES be domain int(-w,-1,1,w)
+
+letting STEPS be domain int(0..stps-1)
+
+find sokPosn : matrix indexed by [STEPS] of int(0..n-1)
+find move : matrix indexed by [int(0..stps-2)] of MOVES
+find walls : matrix indexed by [WALLINDICES] of int(-n+1..n-1)
+find noWalls : int(noWallsInit..noWallsInit+upper_bound_changes)
+
+find crateGoalPosns : matrix indexed by [STEPS,CRATEINDICES] of int(0..n-1)
+
+such that
+$$ initialization of the porter's position
+sokPosn[0] = pInit,
+
+$ Populate initial state, noWalls
+forall cell : WALLINDICESINIT . 
+  walls[cell-1] = wallsInit[cell],
+$ Limit the number of normal cells that change type
+sum([walls[cell]>=0 | cell : WALLINDICES]) <= upper_bound_changes+noWallsInit,  $ already in dominion
+sum([walls[cell]>=0 | cell : WALLINDICES]) = noWalls,
+allDiff(walls),  $ Avoid multiple walls in the same cells
+
+forAll i : STEPS .
+   forAll wll : WALLINDICES .
+	sokPosn[i] != walls[wll],
+
+$$ moving the porter
+forAll i : int(0..stps-2) .
+	sokPosn[i+1] = (sokPosn[i] + move[i]),
+
+$$ initialization of the crates' positions
+forAll ck : int(1..noCrates) .
+   crateGoalPosns[0,ck] = crates[ck],
+
+forAll s : STEPS .
+   allDiff(crateGoalPosns[s,..]),
+	
+$$ moving crates
+forAll k : int(0..stps-2) .
+   forAll c : CRATEINDICES .
+   ((sokPosn[k+1] = crateGoalPosns[k,c])  ->
+   (crateGoalPosns[k+1,c] = (crateGoalPosns[k,c] + move[k]))),
+
+forAll i : int(0..stps-2) .
+   forAll c : CRATEINDICES .
+   ((sokPosn[i+1] = crateGoalPosns[i,c]) \/ 
+		(crateGoalPosns[i+1,c] = crateGoalPosns[i,c])),
+
+$$ ensuring that each crate arrives at a target
+
+forAll c : CRATEINDICES .	
+   exists g : GOALINDICES .
+    crateGoalPosns[stps-1,c] = goals[g]

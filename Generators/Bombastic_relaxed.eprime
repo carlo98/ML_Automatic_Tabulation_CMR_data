@@ -1,0 +1,160 @@
+language ESSENCE' 1.0
+
+$ NB Mixing x, y with row col for grid indexing is confusing
+$ There is likely symmetry and conditional symmetry here.
+
+$$$$ Parameters $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+$ grid has r rows, c columns
+$ 0: dead, 1: ice, 2: normal
+$ We assume that every grid is surrounded by dead cells
+given gridInit : matrix indexed by [int(1..r), int(1..c)] of int(0..2)
+
+$ Initial positions of avatar and blocks
+$ Doing it like this to check c, r compliance.
+given avatarInitRow : int(1..r)
+given avatarInitCol : int(1..c)
+
+given numBlocks : int(1..)
+given blocksInitRow : matrix indexed by [int(1..numBlocks)] of int(1..r)
+given blocksInitCol : matrix indexed by [int(1..numBlocks)] of int(1..c)
+
+$ Goal positions of blocks
+given blocksGoalRow : matrix indexed by [int(1..numBlocks)] of int(1..r)
+given blocksGoalCol : matrix indexed by [int(1..numBlocks)] of int(1..c)
+
+given upper_bound_changes : int
+
+$ Number of steps
+given upper_bound_steps : int(1..)
+find steps : int(1..upper_bound_steps)
+$$$$ End of Parameters $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+$$$$ Decision Variables $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+$ Decompose into row/col to control domain bounds separately/easily
+find moveRow : matrix indexed by [int(1..upper_bound_steps)] of int(-1..1)
+find moveCol : matrix indexed by [int(1..upper_bound_steps)] of int(-1..1)
+
+$ State variables. Convention is that 0 is initial position,
+$ so i is state _after_ move in step i.
+find avatarCurrentRow : matrix indexed by [int(0..upper_bound_steps)] of int(1..r)
+find avatarCurrentCol : matrix indexed by [int(0..upper_bound_steps)] of int(1..c)
+find blocksCurrentRow : 
+  matrix indexed by [int(0..upper_bound_steps), int(1..numBlocks)] of int(1..r)
+find blocksCurrentCol :
+  matrix indexed by [int(0..upper_bound_steps), int(1..numBlocks)] of int(1..c)
+find gridCurrent : 
+  matrix indexed by [int(0..upper_bound_steps), int(1..r), int(1..c)] of int(0..2)
+
+$$$$ End of Decision Variables $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+minimising steps
+
+such that
+
+
+$ Populate initial state
+avatarCurrentRow[0] = avatarInitRow,
+avatarCurrentCol[0] = avatarInitCol,
+forall b : int (1..numBlocks) .
+  blocksCurrentRow[0, b] = blocksInitRow[b],
+forall b : int (1..numBlocks) .
+  blocksCurrentCol[0, b] = blocksInitCol[b], 
+  $ ice cells stay icy and normal cells stay normal, no restriction on dead cells (apart from borders)
+  forall row : int (1..r) .
+    forall col : int (1..c) . (gridInit[row, col]!=0 \/ row=1 \/ row=r \/ col=1 \/ col=c) ->
+      gridCurrent[0, row, col] = gridInit[row, col],
+  $ Limit the number of dead cells that change type
+  sum([gridCurrent[0, row, col] != gridInit[row, col] | row : int(2..r-1), col : int(2..c-1)]) <= upper_bound_changes,
+  
+$ Establish goal state
+forall g : int (1..numBlocks) .
+  exists b : int (1..numBlocks) .
+    blocksCurrentRow[steps, b] = blocksGoalRow[g] /\
+    blocksCurrentCol[steps, b] = blocksGoalCol[g],
+
+$ Disallow the null move - could say sum > 0
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  moveRow[s] != 0 \/ moveCol[s] != 0,
+
+$ Disallow diagonal moves - could say product = 0
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  moveRow[s] = 0 \/ moveCol[s] = 0,
+  
+$ Connect move and position
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  avatarCurrentRow[s] = avatarCurrentRow[s-1] + moveRow[s],
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  avatarCurrentCol[s] = avatarCurrentCol[s-1] + moveCol[s],
+
+$ Block pushing
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall b : int (1..numBlocks) .
+    avatarCurrentRow[s] = blocksCurrentRow[s-1, b] /\
+    avatarCurrentCol[s] = blocksCurrentCol[s-1, b]   
+    ->
+    blocksCurrentRow[s, b] = blocksCurrentRow[s-1, b] + moveRow[s] /\
+    blocksCurrentCol[s, b] = blocksCurrentCol[s-1, b] + moveCol[s],
+  
+$ If blocks not pushed, they stay in the same place
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall b : int (1..numBlocks) .
+    avatarCurrentRow[s] != blocksCurrentRow[s-1, b] \/
+    avatarCurrentCol[s] != blocksCurrentCol[s-1, b]
+    ->
+    blocksCurrentRow[s, b] = blocksCurrentRow[s-1, b] /\
+    blocksCurrentCol[s, b] = blocksCurrentCol[s-1, b],
+  
+$ Avatar cannot be on a dead cell
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s, row, col] = 0 ->
+      avatarCurrentRow[s] != row \/ avatarCurrentCol[s] != col,
+      
+$ Blocks cannot be on dead cells
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s, row, col] = 0 ->
+      forall b : int(1..numBlocks) .
+        blocksCurrentRow[s, b] != row \/ blocksCurrentCol[s, b] != col,
+
+$ Blocks cannot be in the same cell
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall b1 : int (1..numBlocks-1) .
+    forall b2 : int (b1+1..numBlocks) .
+      blocksCurrentRow[s, b1] != blocksCurrentRow[s, b2] \/
+      blocksCurrentCol[s, b1] != blocksCurrentCol[s, b2],
+        
+$ Dead cells stay dead
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s-1, row, col] = 0 ->
+      gridCurrent[s, row, col] = 0,
+      
+$ Normal cells stay normal
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s-1, row, col] = 2 ->
+      gridCurrent[s, row, col] = 2,
+
+$ Ice cells become dead after the avatar stands on them.
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s-1, row, col] = 1 /\ avatarCurrentRow[s-1] = row /\
+      avatarCurrentCol[s-1] = col ->
+      gridCurrent[s, row, col] = 0,
+      
+$ Otherwise ice cells stay icy.
+forall s : int (1..upper_bound_steps) . s<=steps ->
+  forall row : int(1..r) .
+    forall col : int(1..c) .
+      gridCurrent[s-1, row, col] = 1 /\ 
+      (avatarCurrentRow[s-1] != row \/ avatarCurrentCol[s-1] != col) ->
+      gridCurrent[s, row, col] = 1,
+
+true
