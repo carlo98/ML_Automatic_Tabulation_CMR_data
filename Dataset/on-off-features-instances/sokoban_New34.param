@@ -1,0 +1,11 @@
+language ESSENCE' 1.0
+letting w be 9
+letting n be 72
+letting noCrates be 3
+letting noGoals be 3
+letting pInit be 25
+letting stps be 11
+letting crates be [29, 51, 41]
+letting goals be [40, 29, 33]
+letting noWalls be 30
+letting walls be [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 53, 54, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]

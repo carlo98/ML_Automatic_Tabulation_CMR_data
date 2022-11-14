@@ -1,0 +1,184 @@
+language ESSENCE' 1.0
+
+given k: int
+given l: int
+given num_vertices: int
+where k <= l
+letting num_edges be num_vertices * (num_vertices - 1)
+find graph_FunctionNDPartialDummy: matrix indexed by [int(1..num_vertices), int(1..num_vertices)] of int(0..2)
+branching on [graph_FunctionNDPartialDummy]
+such that
+    and([i < j ->
+         graph_FunctionNDPartialDummy[i, j] != 0 /\
+         graph_FunctionNDPartialDummy[i, j] = graph_FunctionNDPartialDummy[j, i]
+             | i : int(1..num_vertices), j : int(1..num_vertices)]),
+    and([!(graph_FunctionNDPartialDummy[i, i] != 0) | i : int(1..num_vertices)]),
+    and([!and([graph_FunctionNDPartialDummy[subgraph_vertices_Explicit[q5], subgraph_vertices_Explicit[q6]] = 1
+                   | q5 : int(1..k), q6 : int(1..k), q6 > q5])
+             | subgraph_vertices_Explicit : matrix indexed by [int(1..k)] of int(1..num_vertices),
+               and([subgraph_vertices_Explicit[q3] < subgraph_vertices_Explicit[q3 + 1] | q3 : int(1..k - 1)])]),
+    and([!and([graph_FunctionNDPartialDummy[subgraph_vertices_Explicit[q9], subgraph_vertices_Explicit[q10]] = 2
+                   | q9 : int(1..l), q10 : int(1..l), q10 > q9])
+             | subgraph_vertices_Explicit : matrix indexed by [int(1..l)] of int(1..num_vertices),
+               and([subgraph_vertices_Explicit[q7] < subgraph_vertices_Explicit[q7 + 1] | q7 : int(1..l - 1)])]),
+    num_edges =
+    sum([toInt(graph_FunctionNDPartialDummy[q1_1, q1_2] != 0)
+             | q1_1 : int(1..num_vertices), q1_2 : int(1..num_vertices)])
+
+$ Conjure's
+$ {"finds": [{"Name": "graph"}], "givens": [{"Name": "k"}, {"Name": "l"}, {"Name": "num_vertices"}], "enumGivens": [],
+$  "enumLettings": [{"LettingDomainDefnEnum": [{"Name": "Colour"}, [{"Name": "red"}, {"Name": "blue"}]]}],
+$  "lettings":
+$      [[{"Name": "num_edges"},
+$        {"Op":
+$             {"MkOpProduct":
+$                  {"AbstractLiteral":
+$                       {"AbsLitMatrix":
+$                            [{"DomainInt":
+$                                  [{"TagInt": []},
+$                                   [{"RangeBounded":
+$                                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                          {"Constant": {"ConstantInt": [{"TagInt": []}, 2]}}]}]]},
+$                             [{"Reference":
+$                                   [{"Name": "num_vertices"},
+$                                    {"DeclNoRepr":
+$                                         ["Given", {"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]},
+$                                          {"NoRegion": []}]}]},
+$                              {"Op":
+$                                   {"MkOpMinus":
+$                                        [{"Reference":
+$                                              [{"Name": "num_vertices"},
+$                                               {"DeclNoRepr":
+$                                                    ["Given", {"Name": "num_vertices"},
+$                                                     {"DomainInt": [{"TagInt": []}, []]}, {"NoRegion": []}]}]},
+$                                         {"Constant": {"ConstantInt": [{"TagInt": []}, 1]}}]}}]]}}}}],
+$       [{"Name": "Colour"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagEnum": "Colour"},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 1]}},
+$                          {"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 2]}}]}]]}}],
+$       [{"Name": "Vertex"},
+$        {"Domain":
+$             {"DomainInt":
+$                  [{"TagInt": []},
+$                   [{"RangeBounded":
+$                         [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                          {"Reference":
+$                               [{"Name": "num_vertices"},
+$                                {"DeclNoRepr":
+$                                     ["Given", {"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]},
+$                                      {"NoRegion": []}]}]}]}]]}}]],
+$  "unnameds": [], "strategyQ": {"PickFirst": []}, "strategyA": {"PickAll": []},
+$  "trailCompact":
+$      [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 2, 2], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+$       [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
+$  "trailVerbose": [], "trailRewrites": [], "nameGenState": [["q", 13]], "nbExtraGivens": 0,
+$  "representations":
+$      [[{"Name": "k"}, {"DomainInt": [{"TagInt": []}, []]}], [{"Name": "l"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "graph"},
+$        {"DomainFunction":
+$             [{"Function_NDPartialDummy": []},
+$              [{"SizeAttr_Size":
+$                    {"Reference":
+$                         [{"Name": "num_edges"},
+$                          {"Alias":
+$                               {"Op":
+$                                    {"MkOpProduct":
+$                                         {"AbstractLiteral":
+$                                              {"AbsLitMatrix":
+$                                                   [{"DomainInt":
+$                                                         [{"TagInt": []},
+$                                                          [{"RangeBounded":
+$                                                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                                                 {"Constant": {"ConstantInt": [{"TagInt": []}, 2]}}]}]]},
+$                                                    [{"Reference":
+$                                                          [{"Name": "num_vertices"},
+$                                                           {"DeclHasRepr":
+$                                                                ["Given", {"Name": "num_vertices"},
+$                                                                 {"DomainInt": [{"TagInt": []}, []]}]}]},
+$                                                     {"Op":
+$                                                          {"MkOpMinus":
+$                                                               [{"Reference":
+$                                                                     [{"Name": "num_vertices"},
+$                                                                      {"DeclHasRepr":
+$                                                                           ["Given", {"Name": "num_vertices"},
+$                                                                            {"DomainInt": [{"TagInt": []}, []]}]}]},
+$                                                                {"Constant":
+$                                                                     {"ConstantInt": [{"TagInt": []}, 1]}}]}}]]}}}}}]}},
+$               "PartialityAttr_Partial", "JectivityAttr_None"],
+$              {"DomainTuple":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference":
+$                                      [{"Name": "num_vertices"},
+$                                       {"DeclHasRepr":
+$                                            ["Given", {"Name": "num_vertices"},
+$                                             {"DomainInt": [{"TagInt": []}, []]}]}]}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference":
+$                                      [{"Name": "num_vertices"},
+$                                       {"DeclHasRepr":
+$                                            ["Given", {"Name": "num_vertices"},
+$                                             {"DomainInt": [{"TagInt": []}, []]}]}]}]}]]}]},
+$              {"DomainInt":
+$                   [{"TagEnum": "Colour"},
+$                    [{"RangeBounded":
+$                          [{"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 1]}},
+$                           {"Constant": {"ConstantInt": [{"TagEnum": "Colour"}, 2]}}]}]]}]}]],
+$  "representationsTree":
+$      [[{"Name": "graph"},
+$        [{"rootLabel": {"Function_NDPartialDummy": []},
+$          "subForest":
+$              [{"rootLabel": null,
+$                "subForest": [{"rootLabel": null, "subForest": []}, {"rootLabel": null, "subForest": []}]},
+$               {"rootLabel": null, "subForest": []}]}]],
+$       [{"Name": "k"}, [{"rootLabel": null, "subForest": []}]], [{"Name": "l"}, [{"rootLabel": null, "subForest": []}]],
+$       [{"Name": "num_vertices"}, [{"rootLabel": null, "subForest": []}]]],
+$  "originalDomains":
+$      [[{"Name": "k"}, {"DomainInt": [{"TagInt": []}, []]}], [{"Name": "l"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "num_vertices"}, {"DomainInt": [{"TagInt": []}, []]}],
+$       [{"Name": "graph"},
+$        {"DomainFunction":
+$             [[],
+$              [{"SizeAttr_Size": {"Reference": [{"Name": "num_edges"}, null]}}, "PartialityAttr_Partial",
+$               "JectivityAttr_None"],
+$              {"DomainTuple":
+$                   [{"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference": [{"Name": "num_vertices"}, null]}]}]]},
+$                    {"DomainInt":
+$                         [{"TagInt": []},
+$                          [{"RangeBounded":
+$                                [{"Constant": {"ConstantInt": [{"TagInt": []}, 1]}},
+$                                 {"Reference": [{"Name": "num_vertices"}, null]}]}]]}]},
+$              {"DomainEnum": [{"Name": "Colour"}, null, null]}]}]],
+$  "trailGeneralised":
+$      [[-5783621585167026410, 8307131025322609283], [8766588976675360234, 3888011633535986571],
+$       [1318707523997604233, 2432553117664416917], [5025686679816371021, -6611753240262045653],
+$       [-3389257630026453779, 1041849518297473634], [-6352255299194377902, 7984045672037937835],
+$       [-1088582502300049806, 3702883563679525750], [2299921596960911487, -5461330705087665066],
+$       [4489873311514483995, 5968915261223217953], [-228549930085866929, 7840285555214964753],
+$       [7402091896794069252, -8333677661436084702], [3428257647620989627, -2646920511768681842],
+$       [-6211502033492881389, 2124213585103691608], [-4556723206848891608, 4747218299864868923],
+$       [7766453204455759811, -4357585820167617276], [43977556000645240, -8433643533933241274],
+$       [-4863209262127823194, -7214891895850776519], [8483815086475625169, -5275069379489042479],
+$       [1509835341393766294, -4168810416362383662], [4694178844883267095, -1047670463682392398],
+$       [6647977857471434167, -4185876748546794318], [-3950798375559055481, 2432553117664416917],
+$       [-6349341342351349091, 1267628345638158031], [2313033784276852159, 5264363524425655472],
+$       [-295562792057786003, -8457251484009761540], [3476963626712679355, -7633099382097688083],
+$       [-6034556743727006031, 5158071287293641900], [3177581994842038799, -6664955677562651533],
+$       [3259158330350677048, 327940519673612738], [1468164530080767261, 4381788357017623346],
+$       [-2808969757729715505, -1528712052676259634], [-3790048481226967627, -4492824076890407473],
+$       [-2547465957577885769, -4691369600970124657], [-5892739874391874149, 6003117253387241495]]}

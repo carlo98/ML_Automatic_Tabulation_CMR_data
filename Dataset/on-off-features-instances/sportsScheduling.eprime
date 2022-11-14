@@ -1,0 +1,67 @@
+$ Sports Scheduling
+language ESSENCE' 1.0
+given      n : int
+
+letting numpairs be (n*(n-1))/2
+
+letting    TEAMS be domain int(1..n)
+letting    GAMES be domain int(1..n**2)
+letting    WEEKS be domain int(1..n-1)
+letting    PERIODS be domain int(1..n/2)
+letting    HOMEAWAY be domain int(1..2)
+
+given exclusions: matrix indexed by[int(..), int(1..4)] of TEAMS
+given assignments: matrix indexed by [int(..), int(1..4)] of TEAMS
+
+find       schedule: matrix indexed by [ WEEKS, PERIODS, HOMEAWAY ] of TEAMS
+find       game : matrix indexed by [ WEEKS, PERIODS ] of { (n*(sched1-1)+sched2) | sched1: TEAMS, sched2: TEAMS, sched1<sched2 }
+
+find caps : matrix indexed by [ PERIODS, TEAMS ] of int(0..2)
+
+such that  
+$ All teams play once a week
+forAll w : WEEKS .
+ allDiff(flatten(schedule[w,..,..])),
+
+$ Every team plays at most twice in the same period
+forAll p : PERIODS .
+ gcc(flatten(schedule[..,p,..]), [i | i : int(1..n)], [ caps[p,i] | i : int(1..n)]),
+ 
+$ Distinct games via alldiff on game array
+allDiff(flatten(game)),
+
+$ Channelling between schedule and game
+$ (assumes home/away symmetry broken)
+forAll w : WEEKS .
+ forAll p : PERIODS .
+   game[w,p]=n*(schedule[w,p,1]-1)+schedule[w,p,2],
+
+$ Symmetry breaking: home < away
+forAll w : WEEKS .
+ forAll p : PERIODS .
+   schedule[w,p,1] < schedule[w,p,2],
+
+$ Symmetry breaking: weeks
+false ->
+forAll w : int(1..n-2) .
+ flatten(schedule[w,..,..]) <=lex flatten(schedule[w+1,..,..]),
+
+$ Symmetry breaking: periods
+false ->
+forAll p : int(1..n/2-1) .
+ flatten(schedule[..,p,..]) <=lex flatten(schedule[..,p+1,..]),
+
+$  Exclude some values
+forAll i : indexOf(exclusions). 
+  exclusions[i,1] in WEEKS -> 
+    exclusions[i,2] in PERIODS ->
+      exclusions[i,3] in HOMEAWAY ->
+        schedule[exclusions[i,1], exclusions[i,2], exclusions[i,3]] != exclusions[i,4],
+
+forAll i : indexOf(assignments). 
+  assignments[i,1] in WEEKS -> 
+    assignments[i,2] in PERIODS ->
+      assignments[i,3] in HOMEAWAY ->
+        schedule[assignments[i,1], assignments[i,2], assignments[i,3]] = assignments[i,4],
+
+true

@@ -1,0 +1,19 @@
+language ESSENCE' 1.0
+
+given n : int
+letting VALS be domain int(1..n)
+find seq : matrix indexed by [VALS] of VALS
+find len : VALS
+
+
+maximising len
+
+such that
+
+allDiff(seq),
+
+forAll i : int(2..n) .
+  i <= len ->
+  ( (seq[i] % seq[i-1] = 0) \/
+    (seq[i-1] %  seq[i] = 0)
+    )

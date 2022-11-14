@@ -1,0 +1,15 @@
+language ESSENCE' 1.0
+
+given n : int
+given len : int
+find seq : matrix indexed by [int(1..len)] of int(1..n)
+
+such that
+
+allDiff(seq),
+
+forAll i : int(2..len) .
+  (
+    (seq[i] % seq[i-1] = 0) \/
+    (seq[i-1] %  seq[i] = 0)
+    )

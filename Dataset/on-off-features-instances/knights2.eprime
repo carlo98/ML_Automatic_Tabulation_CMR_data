@@ -1,0 +1,86 @@
+language ESSENCE' 1.0
+
+$ Knight's tour Basic Model
+$
+$ the steps are collected as a sequence of fields,
+$ where the fields on the board are enumerated as 
+$ follows:
+
+$ 0     1     2    ..  n-1
+$ n    n+1   n+2   ..  2n-1
+$ 2n    ..             3n-1 
+$ ..
+$ n*(n-1)   ..       (n*n)-1
+
+
+$ we can compute the value of each field  
+$ as follows: (modulo n) gives the column and 
+$ (div n) returns the row; we get the value with:
+$ column + row * n
+$ The column-values range from (0..n-1) and
+$ the row values range from (0..n-1).
+$
+$ by Andrea Rendl
+$ following the model from Gecode (which quotes Gert Smolka)
+
+$  Channelled model, 
+
+
+given n: int
+given startCol,startRow : int(0..n-1)
+given tourLength : int(1..n*n)
+
+where tourLength=n*n  $  This model only works when every location has a successor. 
+
+letting FIELDS be domain int(0..n*n-1)
+letting KNIGHTS be domain int(0..tourLength-1)
+
+find next : matrix indexed by [KNIGHTS] of int(0..tourLength)  $  The value tourLength means no next position. 
+
+find tour : matrix indexed by [KNIGHTS] of FIELDS
+
+such that
+
+allDiff(tour),
+
+$ starting point
+tour[0] = startCol + (startRow)*n,
+
+$ legal moves
+forAll i : int(0..tourLength-2) .
+       (   (  ( |tour[i]%(n)  - tour[i+1]%(n)| = 1) /\
+              ( |tour[i]/(n)  - tour[i+1]/(n)| = 2) 
+            )
+         \/
+           (  ( |tour[i]%(n)  - tour[i+1]%(n)| = 2) /\
+              ( |tour[i]/(n)  - tour[i+1]/(n)| = 1) 
+           )
+       ),
+
+$ Not a closed tour. 
+
+$ Other viewpoint, the next position. 
+
+allDiff(next),
+
+forAll i : KNIGHTS. 
+    next[i] in toSet(
+    [ s | s : int(0..tourLength),    
+    (   (  ( |i%(n)  - s%(n)| = 1) /\
+           ( |i/(n)  - s/(n)| = 2) 
+        )
+      \/
+        (  ( |i%(n)  - s%(n)| = 2) /\
+           ( |i/(n)  - s/(n)| = 1) 
+        )
+    )
+    \/ s=tourLength  $  No successor is always allowed. 
+    ]),
+
+$ Channelling
+forAll i : int(0..tourLength-2).
+    next[tour[i]]=tour[i+1],
+
+next[tour[tourLength-1]]=tourLength,  $  Last one has no successor. 
+
+true

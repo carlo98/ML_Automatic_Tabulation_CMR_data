@@ -1,0 +1,47 @@
+language Essence 1.0
+
+$ The Ramsey number R(k,l) is the smallest number such that
+$ if we two-colour the edges of complete graph of this size,
+$ there always exists a monochromatic subgraph of either k or l nodes.
+
+$ In other words (from Wikipedia):
+$ The Ramsey number, R(k,l), gives the solution to the party problem,
+$ which asks the minimum number of guests, R(k,l), that must be invited
+$ so that at least k will know each other
+$      or at least l will not know each other.
+
+$ Here, we are modelling the Ramsey-graph problem which is the problem of finding counter-examples.
+$ For a given k,l, and num_vertices: find a colouring of the complete graph
+$ which does not have a blue-subgraph nor a red-subgraph.
+
+given k, l, num_vertices : int
+
+$ due to symmetry R(k, l) = R(l,k)
+where k <= l
+
+$ complete graph, to we can calculate the number of edges
+letting num_edges be num_vertices * (num_vertices - 1)
+
+$ we are two-colouring
+letting Colour be int(0..2)  $ endefined, red or blue, from function and enum
+
+letting Vertex be domain int(1..num_vertices)
+find graph : matrix indexed by [Vertex, Vertex] of Colour
+
+
+$ the graph is complete
+such that
+    forAll i,j : Vertex . i < j ->
+        graph[i, j]!=0 /\ graph[i, j] = graph[j, i],
+    forAll i : Vertex .
+        graph[i, i]=0,
+
+
+$ there isn't a red-subgraph of size k
+    forAll subgraph_vertices : matrix indexed by [int(1..k)] of Vertex . 
+        allDiff(subgraph_vertices) -> !(forAll i,j : subgraph_vertices . i<j -> graph[i, j] = 1),
+
+
+$ there isn't a blue-subgraph of size l
+    forAll subgraph_vertices : matrix indexed by [int(1..l)] of Vertex . 
+        allDiff(subgraph_vertices) -> !(forAll i,j : subgraph_vertices . i<j -> graph[i, j] = 2)

@@ -1,0 +1,53 @@
+language ESSENCE' 1.0
+
+given cards : matrix indexed by [ int(1..n) ] of int(0..51)
+where alldifferent(cards)
+
+find from : matrix indexed by [ int(1..n-1) ] of int(1..n)
+find to : matrix indexed by [ int(1..n-1) ] of int(1..n)
+find fromcard : matrix indexed by [ int(1..n-1) ] of int(0..51)
+find tocard : matrix indexed by [ int(1..n-1) ] of int(0..51)
+
+find piles : matrix indexed by [ int(1..n), int(1..n)] of int(0..51)
+
+such that
+
+$ init state
+forall i : int(1..n) .
+  piles[1,i] = cards[i],
+
+$ Make the move
+forall t : int (1..n-1) .
+  piles[t, from[t]] = piles[t+1, to[t]],
+
+$ constrain source/dest
+forall t : int(1..n-1) .
+  (to[t] = from[t] - 1 \/
+  to[t] = from[t] - 3),
+
+$ Frame
+forall t : int (1..n-1) .
+forall i : int (1..n) .
+i < to[t] -> piles[t, i] = piles[t+1, i],
+
+forall t : int (1..n-1) .
+forall i : int (1..n) .
+(i > to[t] /\ i < from[t]) -> piles[t, i] = piles[t+1, i],
+
+forall t : int (1..n-1) .
+  forall i : int (1..n-1) .
+    (i >= from[t]) ->
+    (piles[t+1, i] = piles[t, i+1]),
+
+forall t : int(2..n) .
+piles[t,n] = 0,
+
+forall t : int (1..n-1) .
+from[t] <= n - t + 1,
+
+forall t : int(1..n-1) .
+    (fromcard[t] = piles[t,from[t]]) /\
+    (tocard[t] = piles[t,to[t]]) /\
+    (fromcard[t] % 13 = tocard[t] % 13 \/ fromcard[t] / 13 = tocard[t] / 13),
+
+true

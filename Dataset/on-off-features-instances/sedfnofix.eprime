@@ -1,0 +1,49 @@
+language ESSENCE' 1.0
+
+given n: int
+given tab: matrix indexed by [int(1..n), int(1..n)] of int(1..n)
+given inverses: matrix indexed by [int(1..n)] of int(1..n)
+
+given setsize: int(1..n)
+given setnum: int(1..n)
+given dups : int(1..n)
+
+find sedf: matrix indexed by [int(1..setnum), int(1..setsize)] of int(1..n)
+
+
+such that
+
+$sedf[1,1] = 1,
+$sedf[1,2] = 2,
+$sedf[1,3] = 3,
+$sedf[1,4] = 5,
+$sedf[1,5] = 7,
+$sedf[1,6] = 10,
+$sedf[1,7] = 13,
+$sedf[2,1] = 12,
+$sedf[2,2] = 14,
+$sedf[2,3] = 17,
+$sedf[2,4] = 34,
+$sedf[2,5] = 37,
+$sedf[2,6] = 39,
+$sedf[2,7] = 50,
+$# = [ [ 1, 2, 3, 5, 7, 10, 13 ], [ 12, 14, 17, 34, 37, 39, 50 ] ],
+
+
+allDiff(flatten(sedf)),
+
+
+
+forAll i : int(1..setnum). forAll j : int(1..setsize-1). sedf[i,j] < sedf[i,j+1],
+
+forAll i : int(1..setnum-1). sedf[i,1] < sedf[i+1,1],
+
+forAll p1 : int(1..setnum).
+(
+    gcc([tab[sedf[p1,p2],inverses[sedf[q1,q2]]]
+    | 
+p2 : int(1..setsize),q2 : int(1..setsize), q1 : int(1..setnum), p1 != q1], [i | i : int(1..n)], [toInt(i != 1)*dups | i : int(1..n)])
+),
+
+
+1=1

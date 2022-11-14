@@ -1,0 +1,64 @@
+$  # - Wall
+$  . - Target Position
+$  @ - Porter
+$  $ - Crate
+$    - Empty Cell
+$
+$
+$
+$ First instance from 
+$ http://users.bentonrea.com/~sasquatch/sokoban/m1
+$  
+$  012345
+$ 0####
+$ 1# .#
+$ 2#  ###
+$ 3# @  #
+$ 4#  $ #
+$ 5#  ###
+$ 6####
+$
+$ width: 6
+$ height: 7
+
+language ESSENCE' 1.0
+
+letting w be 6
+letting n be 42
+
+letting noCrates be 2
+letting noGoals be 2
+
+letting pInit be 7
+letting stps be 40 $ don't know how many?
+
+letting walls be [ 0,  1,  2,  3,  4,  5,    $  6
+
+                   6,                 11,    $  2
+    
+                  12,         15, 16, 17,    $  4
+              
+                  18,         21,     23,    $  3
+  
+                  24,                 29,    $  2
+
+                  30,         33,     35,    $  3
+
+                  36, 37, 38, 39, 40, 41 ]   $  6
+
+                                    $       --------
+                                    $ noWalls:  26
+letting noWalls be 26
+
+letting crates be [14, 25]
+letting goals be [10, 7] 
+
+
+
+
+
+
+
+
+
+                  

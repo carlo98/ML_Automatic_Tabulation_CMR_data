@@ -1,0 +1,49 @@
+language ESSENCE' 1.0
+
+$ size of the board is n x n
+given n : int
+
+$ put in an extra 2 layers dead cells
+letting w = n+4
+
+$ using a 2-dimentional array 'g' (grid)
+find g : matrix indexed by [int(1..n+4), int(1..n+4)] of bool
+
+maximising sum(flatten(g))
+
+such that
+
+$ the (outer and inner) border with thickness of 2 cells must be dead
+forAll i,j : int(1..n+4) . (
+    (i <= 2) \/                     $ first two rows
+    (i > n+2) \/                    $ last two rows
+    (j <=2)  \/                     $ first two cols
+    (j > n+2)                       $ last two cols
+  ) -> !g[i,j],
+
+$ all cells apart from the very outer border need to obey the rules of Conway's
+$ Game of (Still) Life :
+$ 3 neighbours -> be alive
+$ 2 neighbours -> stay as you were (i.e. don't care)
+$ otherwise -> dead
+
+$ 3 neighbours
+forAll i,j : int(2..n+3) . (
+    (g[i-1,j-1] + g[i-1,j] + g[i-1,j+1] +
+     g[i,j-1]       +        g[i,j+1] +
+     g[i+1,j-1] + g[i+1,j] + g[i+1,j+1] ) = 3
+  ) -> g[i,j],
+
+
+$ more than 3 neighbours or fewer than 2
+forAll i,j : int(2..n+3) . (
+    ( ( (g[i-1,j-1] + g[i-1,j] + g[i-1,j+1] +
+         g[i,j-1]       +        g[i,j+1] +
+         g[i+1,j-1] + g[i+1,j] + g[i+1,j+1] ) > 3 ) \/
+      ( (g[i-1,j-1] + g[i-1,j] + g[i-1,j+1] +
+         g[i,j-1]       +        g[i,j+1] +
+         g[i+1,j-1] + g[i+1,j] + g[i+1,j+1] ) < 2 )
+    )
+  ) -> !g[i,j],
+
+true
