@@ -10,3 +10,4 @@ The repository is organized as follows:
 - 'Generators' contains a few python and bash scripts used to generate the instances of some of the problem classes.
 - 'Dataset' contains the results obtained by solving the instances with different solvers, i.e. minion, kissat, kissat-mdd and chuffed, as csv files. In the same folder are also available the instances' features (folder 'on-off-feature-instances') and the results obtained for the second task.
 - 'ML_logs' contains the results obtained when training a few ML models on the dataset.
+- 'Code' contains the code used by us to train the models and to study the results.
